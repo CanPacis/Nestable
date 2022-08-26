@@ -421,14 +421,10 @@
           this.dragRootEl.data("nestable-id") !==
           pointElRoot.data("nestable-id");
 
-      //   console.log(findDdItem(this.currentDragElement[0]), this.dragRootEl.nestable("serialize"));
-      console.log(
-        findDdItem(this.currentDragElement[0]),
-        findDdRoot(this.pointEl[0])
-      );
-      //   this.dragRootEl.trigger("move", {
-      //     source: findDdItem(this.currentDragElement[0]),
-      //   });
+      this.dragRootEl.trigger("move", {
+        target: findDdRoot(this.pointEl[0]),
+        source: findDdItem(this.currentDragElement[0]),
+      });
 
       /**
        * move vertical

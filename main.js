@@ -17,7 +17,7 @@ $(document).ready(function () {
     .on("change", updateOutput)
     .on("move", (e, data) => {
       var list = e.length ? e : $(e.target);
-      console.log(e, data)
+      console.log(data)
     });
 
   // activate Nestable for list 2
