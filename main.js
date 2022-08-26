@@ -16,8 +16,11 @@ $(document).ready(function () {
     })
     .on("change", updateOutput)
     .on("move", (e, data) => {
-      var list = e.length ? e : $(e.target);
-      console.log(data)
+      if (data.source.id === "4" && data.target.id === "5") {
+        data.cancel();
+      } else {
+        data.resume();
+      }
     });
 
   // activate Nestable for list 2

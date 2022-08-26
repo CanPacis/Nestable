@@ -183,6 +183,7 @@
       this.dragDepth = 0;
       this.hasNewRoot = false;
       this.pointEl = null;
+      this.isSetForCancel = false;
     },
 
     expandItem: function (li) {
@@ -234,8 +235,20 @@
       var mouse = this.mouse,
         target = $(e.target),
         dragItem = target.closest(this.options.itemNodeName);
-
+      this.isSetForCancel = false;
       this.currentDragElement = target;
+
+      pointEl = $(
+        document.elementFromPoint(
+          e.pageX - document.body.scrollLeft,
+          e.pageY - (window.pageYOffset || document.documentElement.scrollTop)
+        )
+      );
+      this.initialRoot = findDdList(pointEl[0]);
+      const list = Array.from(this.initialRoot.children);
+      const item = findDdItem(this.currentDragElement[0]).element;
+      const index = list.indexOf(item);
+      this.index = index;
 
       this.placeEl.css("height", dragItem.height());
 
@@ -276,11 +289,17 @@
 
     dragStop: function (e) {
       var el = this.dragEl.children(this.options.itemNodeName).first();
-      this.currentDragElement = null;
-      el[0].parentNode.removeChild(el[0]);
-      this.placeEl.replaceWith(el);
+
+      if (this.isSetForCancel) {
+        $(this.initialRoot).insertAt(this.index, el[0]);
+        this.placeEl.remove();
+      } else {
+        el[0].parentNode.removeChild(el[0]);
+        this.placeEl.replaceWith(el);
+      }
 
       this.dragEl.remove();
+      this.currentDragElement = null;
       this.el.trigger("change");
       if (this.hasNewRoot) {
         this.dragRootEl.trigger("change");
@@ -301,6 +320,7 @@
         left: e.pageX - mouse.offsetX,
         top: e.pageY - mouse.offsetY,
       });
+      // this.isSetForCancel = false;
 
       // mouse position last events
       mouse.lastX = mouse.nowX;
@@ -400,6 +420,7 @@
           e.pageY - (window.pageYOffset || document.documentElement.scrollTop)
         )
       );
+
       if (!hasPointerEvents) {
         this.dragEl[0].style.visibility = "visible";
       }
@@ -424,6 +445,12 @@
       this.dragRootEl.trigger("move", {
         target: findDdRoot(this.pointEl[0]),
         source: findDdItem(this.currentDragElement[0]),
+        cancel: () => {
+          this.isSetForCancel = true;
+        },
+        resume: () => {
+          this.isSetForCancel = false;
+        },
       });
 
       /**
@@ -443,6 +470,7 @@
         var before =
           e.pageY < this.pointEl.offset().top + this.pointEl.height() / 2;
         parent = this.placeEl.parent();
+
         // if empty create new list to replace empty placeholder
         if (isEmpty) {
           list = $(document.createElement(opt.listNodeName)).addClass(
@@ -483,16 +511,16 @@
     };
   }
 
+  function findDdList(element) {
+    let currentElement = element;
+
+    while (!currentElement.classList.contains("dd-list")) {
+      currentElement = currentElement.parentElement;
+    }
+    return currentElement;
+  }
+
   function findDdRoot(element) {
-    const findDdList = (element) => {
-      let currentElement = element;
-
-      while (!currentElement.classList.contains("dd-list")) {
-        currentElement = currentElement.parentElement;
-      }
-      return currentElement;
-    };
-
     const list = findDdList(element);
 
     let currentElement = list;
@@ -512,6 +540,18 @@
       id,
     };
   }
+
+  $.fn.insertAt = function (index, element) {
+    var lastIndex = this.children().size();
+    if (index < 0) {
+      index = Math.max(0, lastIndex + 1 + index);
+    }
+    this.append(element);
+    if (index < lastIndex) {
+      this.children().eq(index).before(this.children().last());
+    }
+    return this;
+  };
 
   $.fn.nestable = function (params) {
     var lists = this,
