@@ -1,11 +1,17 @@
 $(document).ready(function () {
-  var updateOutput = function (e) {
+  var updateOutput = function (e, data) {
     var list = e.length ? e : $(e.target),
       output = list.data("output");
-    if (window.JSON) {
-      output.val(window.JSON.stringify(list.nestable("serialize"))); //, null, 2));
+
+      if (window.JSON) {
+        output.val(window.JSON.stringify(list.nestable("serialize"))); //, null, 2));
+        console.log(list.nestable("serialize"))
     } else {
       output.val("JSON browser support required for this demo.");
+    }
+
+    if (data?.undo) {
+      data.undo()
     }
   };
 
@@ -15,19 +21,6 @@ $(document).ready(function () {
       group: 1,
     })
     .on("change", updateOutput)
-    .on("before-change", (e, data) => {
-      if (data.source.id === "4" && data.target.id === "5") {
-        data.cancel();
-      }
-    });
-  // .on("move", (e, data) => {
-  //   console.log("move");
-  //   if (data.source.id === "4" && data.target.id === "5") {
-  //     data.cancel();
-  //   } else {
-  //     data.resume();
-  //   }
-  // });
 
   // activate Nestable for list 2
   $("#nestable2")

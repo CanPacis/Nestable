@@ -290,9 +290,11 @@
     dragStop: function (e) {
       var el = this.dragEl.children(this.options.itemNodeName).first();
 
+      const target = findDdRoot(this.pointEl[0]);
+      const source = findDdItem(this.currentDragElement[0]);
       this.dragRootEl.trigger("before-change", {
-        target: findDdRoot(this.pointEl[0]),
-        source: findDdItem(this.currentDragElement[0]),
+        target: target,
+        source: source,
         cancel: () => {
           this.isSetForCancel = true;
         },
@@ -308,7 +310,11 @@
 
       this.dragEl.remove();
       this.currentDragElement = null;
-      this.el.trigger("change");
+      this.el.trigger("change", {
+        undo: () => {
+          $(this.initialRoot).insertAt(this.index, el[0]);
+        },
+      });
       if (this.hasNewRoot) {
         this.dragRootEl.trigger("change");
       }
@@ -510,6 +516,9 @@
     let currentElement = element;
 
     while (currentElement.getAttribute("data-id") === null) {
+      if (currentElement.parentElement === null) {
+        break;
+      }
       currentElement = currentElement.parentElement;
     }
 
@@ -523,6 +532,9 @@
     let currentElement = element;
 
     while (!currentElement.classList.contains("dd-list")) {
+      if (currentElement.parentElement === null) {
+        break;
+      }
       currentElement = currentElement.parentElement;
     }
     return currentElement;
@@ -535,6 +547,9 @@
     let id;
 
     while (!currentElement.classList.contains("dd-item")) {
+      if (currentElement.parentElement === null) {
+        break;
+      }
       if (currentElement.classList.contains("dd")) {
         id = "root";
         break;
