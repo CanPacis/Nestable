@@ -290,6 +290,14 @@
     dragStop: function (e) {
       var el = this.dragEl.children(this.options.itemNodeName).first();
 
+      this.dragRootEl.trigger("before-change", {
+        target: findDdRoot(this.pointEl[0]),
+        source: findDdItem(this.currentDragElement[0]),
+        cancel: () => {
+          this.isSetForCancel = true;
+        },
+      });
+
       if (this.isSetForCancel) {
         $(this.initialRoot).insertAt(this.index, el[0]);
         this.placeEl.remove();

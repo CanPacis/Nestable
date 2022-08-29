@@ -15,13 +15,19 @@ $(document).ready(function () {
       group: 1,
     })
     .on("change", updateOutput)
-    .on("move", (e, data) => {
+    .on("before-change", (e, data) => {
       if (data.source.id === "4" && data.target.id === "5") {
         data.cancel();
-      } else {
-        data.resume();
       }
     });
+  // .on("move", (e, data) => {
+  //   console.log("move");
+  //   if (data.source.id === "4" && data.target.id === "5") {
+  //     data.cancel();
+  //   } else {
+  //     data.resume();
+  //   }
+  // });
 
   // activate Nestable for list 2
   $("#nestable2")
